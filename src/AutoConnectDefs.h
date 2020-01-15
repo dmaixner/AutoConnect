@@ -2,8 +2,8 @@
  * Predefined AutoConnect configuration parameters.
  * @file AutoConnectDefs.h
  * @author hieromon@gmail.com
- * @version  1.1.0
- * @date 2019-10-11
+ * @version  1.2.0
+ * @date 2020-01-15
  * @copyright  MIT license.
  */
 
@@ -173,6 +173,11 @@
 #define AUTOCONNECT_TICKER_PORT       2
 #endif
 #endif
+
+// Default content to apply when authentication fails
+#ifndef AUTOCONNECT_AUTH_FAILCONTENT
+#define AUTOCONNECT_AUTH_FAILCONTENT  "Authenticaton failed"
+#endif  // !AUTOCONNECT_AUTH_FAILCONTENT
 
 // ArduinoJson buffer size
 #ifndef AUTOCONNECT_JSONBUFFER_SIZE

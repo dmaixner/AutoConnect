@@ -2,8 +2,8 @@
  *	Declaration of AutoConnect class and accompanying AutoConnectConfig class.
  *	@file	AutoConnect.h
  *	@author	hieromon@gmail.com
- *	@version	1.1.1
- *	@date	2019-10-17
+ *	@version	1.2.0
+ *	@date	2020-01-15
  *	@copyright	MIT license.
  */
 
@@ -33,22 +33,12 @@ using WebServerClass = WebServer;
 #include "AutoConnectCredential.h"
 #include "AutoConnectAux.h"
 #include "AutoConnectTicker.h"
+#include "AutoConnectTypes.h"
 
 // The realization of AutoConnectUpdate is effective only by the explicit
 // definition of AUTOCONNECT_USE_UPDATE
 #include "AutoConnectUpdate.h"
 class AutoConnectUpdate;  // Reference to avoid circular
-
-/**< A type to save established credential at WiFi.begin automatically. */
-typedef enum AC_SAVECREDENTIAL {
-  AC_SAVECREDENTIAL_NEVER,
-  AC_SAVECREDENTIAL_AUTO
-} AC_SAVECREDENTIAL_t;
-
-typedef enum AC_ONBOOTURI {
-  AC_ONBOOTURI_ROOT,
-  AC_ONBOOTURI_HOME
-} AC_ONBOOTURI_t;
 
 class AutoConnectConfig {
  public:
@@ -61,8 +51,8 @@ class AutoConnectConfig {
     apip(AUTOCONNECT_AP_IP),
     gateway(AUTOCONNECT_AP_GW),
     netmask(AUTOCONNECT_AP_NM),
-    apid(String(AUTOCONNECT_APID)),
-    psk(String(AUTOCONNECT_PSK)),
+    apid(String(F(AUTOCONNECT_APID))),
+    psk(String(F(AUTOCONNECT_PSK))),
     channel(AUTOCONNECT_AP_CH),
     hidden(0),
     autoSave(AC_SAVECREDENTIAL_AUTO),
@@ -78,6 +68,12 @@ class AutoConnectConfig {
     ticker(false),
     tickerPort(AUTOCONNECT_TICKER_PORT),
     tickerOn(LOW),
+    authentication(AC_AUTH_NONE),
+    scope(AC_AUTHSCOPE_AUX),
+    username(String(F(AUTOCONNECT_APID))),
+    password(String(F(AUTOCONNECT_PSK))),
+    realm(String("")),
+    fails(String(F(AUTOCONNECT_AUTH_FAILCONTENT))),
     hostName(String("")),
     homeUri(AUTOCONNECT_HOMEURI),
     title(AUTOCONNECT_MENU_TITLE),
@@ -110,6 +106,12 @@ class AutoConnectConfig {
     ticker(false),
     tickerPort(AUTOCONNECT_TICKER_PORT),
     tickerOn(LOW),
+    authentication(AC_AUTH_NONE),
+    scope(AC_AUTHSCOPE_AUX),
+    username(String(ap)),
+    password(String(password)),
+    realm(String("")),
+    fails(String(F(AUTOCONNECT_AUTH_FAILCONTENT))),
     hostName(String("")),
     homeUri(AUTOCONNECT_HOMEURI),
     title(AUTOCONNECT_MENU_TITLE),
@@ -142,6 +144,12 @@ class AutoConnectConfig {
     ticker = o.ticker;
     tickerPort = o.tickerPort;
     tickerOn = o.tickerOn;
+    authentication = o.authentication;
+    scope = o.scope;
+    username = o.username;
+    password = o.password;
+    realm = o.realm;
+    fails = o.fails;
     hostName = o.hostName;
     homeUri = o.homeUri;
     title = o.title;
@@ -173,6 +181,12 @@ class AutoConnectConfig {
   bool      ticker;             /**< Drives LED flicker according to WiFi connection status. */
   uint8_t   tickerPort;         /**< GPIO for flicker */
   uint8_t   tickerOn;           /**< A signal for flicker turn on */
+  AC_AUTH_t authentication;     /**< Enable authentication */
+  AC_AUTHSCOPE_t  scope;        /**< certification scope */
+  String    username;           /**< User name for authentication */
+  String    password;           /**< Authentication password */
+  String    realm;              /**< Authentication scheme that issue a challenge. */
+  String    fails;              /**< Content for unauthorized access */
   String    hostName;           /**< host name */
   String    homeUri;            /**< A URI of user site */
   String    title;              /**< Menu title */

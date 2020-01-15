@@ -2,8 +2,8 @@
  * Implementation of AutoConnectAux class.
  * @file AutoConnectAuxBasisImpl.h
  * @author hieromon@gmail.com
- * @version  1.1.1
- * @date 2019-10-17
+ * @version  1.2.0
+ * @date 2020-01-15
  * @copyright  MIT license.
  */
 #include <algorithm>
@@ -509,7 +509,25 @@ PageElement* AutoConnectAux::_setupPage(const String& uri) {
       elm->addToken(String(FPSTR("AUX_ELEMENT")), std::bind(&AutoConnectAux::_insertElement, this, std::placeholders::_1));
       // Restore transfer mode by each page
       mother->_responsePage->chunked(chunk);
-    }
+
+      // Register authentication method
+      AC_AUTH_t auth = AC_AUTH_NONE;
+      if (mother->_apConfig.scope == AC_AUTHSCOPE_AUX || mother->_apConfig.scope == AC_AUTHSCOPE_PORTAL)
+        auth = mother->_apConfig.authentication;
+      else if (mother->_apConfig.scope == AC_AUTHSCOPE_PARTIAL)
+        auth = _httpAuth;
+      if (auth != AC_AUTH_NONE) {
+        HTTPAuthMethod  httpAuth;
+        if (auth == AC_AUTH_BASIC)
+          httpAuth = BASIC_AUTH;
+        else
+          httpAuth = DIGEST_AUTH;
+        mother->_responsePage->authentication(mother->_apConfig.username.c_str(), mother->_apConfig.password.c_str(), httpAuth, mother->_apConfig.realm.c_str(), mother->_apConfig.fails);
+        AC_DBG_DUMB(",%s", httpAuth == BASIC_AUTH ? "BASIC" : (httpAuth == DIGEST_AUTH ? "DIGEST" : ""));
+      }
+      else
+        mother->_responsePage->authentication(nullptr, nullptr);
+      }
   }
   return elm;
 }
@@ -752,6 +770,13 @@ bool AutoConnectAux::_load(JsonObject& jb) {
   _uriStr = jb[F(AUTOCONNECT_JSON_KEY_URI)].as<String>();
   _uri = _uriStr.c_str();
   _menu = jb[F(AUTOCONNECT_JSON_KEY_MENU)].as<bool>();
+  String  auth = jb[F(AUTOCONNECT_JSON_KEY_AUTH)].as<String>();
+  if (auth.equalsIgnoreCase(F(AUTOCONNECT_JSON_VALUE_BASIC)))
+    _httpAuth = AC_AUTH_BASIC;
+  else if (auth.equalsIgnoreCase(F(AUTOCONNECT_JSON_VALUE_DIGEST)))
+    _httpAuth = AC_AUTH_DIGEST;
+  if (auth.equalsIgnoreCase(F(AUTOCONNECT_JSON_VALUE_NONE)))
+    _httpAuth = AC_AUTH_NONE;
   JsonVariant elements = jb[F(AUTOCONNECT_JSON_KEY_ELEMENT)];
   (void)_loadElement(elements, "");
   return true;
@@ -878,7 +903,7 @@ size_t AutoConnectAux::saveElement(Stream& out, std::vector<String> const& names
   // Calculate JSON buffer size
   if (amount == 0) {
     bufferSize += JSON_OBJECT_SIZE(4);
-    bufferSize += sizeof(AUTOCONNECT_JSON_KEY_TITLE) + _title.length() + 1 + sizeof(AUTOCONNECT_JSON_KEY_URI) + _uriStr.length() + 1 + sizeof(AUTOCONNECT_JSON_KEY_MENU) + sizeof(AUTOCONNECT_JSON_KEY_ELEMENT);
+    bufferSize += sizeof(AUTOCONNECT_JSON_KEY_TITLE) + _title.length() + 1 + sizeof(AUTOCONNECT_JSON_KEY_URI) + _uriStr.length() + 1 + sizeof(AUTOCONNECT_JSON_KEY_MENU) + sizeof(AUTOCONNECT_JSON_KEY_ELEMENT) + sizeof(AUTOCONNECT_JSON_KEY_AUTH) + sizeof(AUTOCONNECT_JSON_VALUE_DIGEST);
     bufferSize += JSON_ARRAY_SIZE(_addonElm.size());
   }
   else
@@ -915,6 +940,10 @@ size_t AutoConnectAux::saveElement(Stream& out, std::vector<String> const& names
       json[F(AUTOCONNECT_JSON_KEY_TITLE)] = _title;
       json[F(AUTOCONNECT_JSON_KEY_URI)] = _uriStr;
       json[F(AUTOCONNECT_JSON_KEY_MENU)] = _menu;
+      if (_httpAuth == AC_AUTH_BASIC)
+        json[F(AUTOCONNECT_JSON_KEY_AUTH)] = String(F(AUTOCONNECT_JSON_VALUE_BASIC));
+      else if (_httpAuth == AC_AUTH_DIGEST)
+        json[F(AUTOCONNECT_JSON_KEY_AUTH)] = String(F(AUTOCONNECT_JSON_VALUE_DIGEST));
       ArduinoJsonArray  elements = json.createNestedArray(F(AUTOCONNECT_JSON_KEY_ELEMENT));
       for (AutoConnectElement& elm : _addonElm) {
         ArduinoJsonObject element = elements.createNestedObject();

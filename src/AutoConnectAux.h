@@ -2,8 +2,8 @@
  * Declaration of AutoConnectAux basic class.
  * @file AutoConnectAuxBasis.h
  * @author hieromon@gmail.com
- * @version  1.1.1
- * @date 2019-10-17
+ * @version  1.2.0
+ * @date 2020-01-15
  * @copyright  MIT license.
  */
 
@@ -20,6 +20,7 @@
 #endif // !AUTOCONNECT_USE_JSON
 #include <PageBuilder.h>
 #include "AutoConnectElement.h"
+#include "AutoConnectTypes.h"
 
 class AutoConnect;  // Reference to avoid circular
 class AutoConnectAux;  // Reference to avoid circular
@@ -62,6 +63,7 @@ class AutoConnectAux : public PageBuilder {
   bool  isMenu(void) { return _menu; }                                  /**< Return whether embedded in the menu or not */
   bool  isValid(void) const;                                            /**< Validate all AutoConnectInput value */
   bool  release(const String& name);                                    /**< Release an AutoConnectElement */
+  void  authentication(const AC_AUTH_t auth) { _httpAuth = auth; }      /**< Set certain page authentication */
   bool  setElementValue(const String& name, const String value);        /**< Set value to specified element */
   bool  setElementValue(const String& name, std::vector<String> const& values);  /**< Set values collection to specified element */
   void  setTitle(const String& title) { _title = title; }               /**< Set a title of the auxiliary page */
@@ -146,6 +148,7 @@ class AutoConnectAux : public PageBuilder {
 
   String  _title;                             /**< A title of the page */
   bool    _menu;                              /**< Switch for menu displaying */
+  AC_AUTH_t _httpAuth = AC_AUTH_NONE;         /**< Applying HTTP authentication */
   String  _uriStr;                            /**< uri as String */
   AutoConnectElementVT  _addonElm;            /**< A vector set of AutoConnectElements placed on this auxiliary page */
   AutoConnectAux*       _next = nullptr;      /**< Auxiliary pages chain list */
@@ -160,4 +163,4 @@ class AutoConnectAux : public PageBuilder {
   friend class AutoConnect;
 };
 
-#endif // _AUTOCONNECTAUX_H_
+#endif // !_AUTOCONNECTAUX_H_

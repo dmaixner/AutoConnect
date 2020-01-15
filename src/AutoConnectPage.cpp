@@ -2,8 +2,8 @@
  *  AutoConnect portal site web page implementation.
  *  @file   AutoConnectPage.h
  *  @author hieromon@gmail.com
- *  @version    1.1.3
- *  @date   2019-11-08
+ *  @version    1.2.0
+ *  @date   2020-01-15
  *  @copyright  MIT license.
  */
 
@@ -996,6 +996,8 @@ String AutoConnect::_token_WIFI_MODE(PageArgument& args) {
     wifiMode = "MAX";
     break;
 #endif
+  default:
+    wifiMode = "EXPERIMENTAL";
   }
   return String(wifiMode);
 }
@@ -1495,6 +1497,18 @@ PageElement* AutoConnect::_setupPage(String uri) {
         _responsePage->chunked(_pageBuildMode[n].transMode);
         break;
       }
+    // Regiter authentication method
+    if (_apConfig.scope == AC_AUTHSCOPE_PORTAL) {
+      HTTPAuthMethod  auth;
+      if (_apConfig.authentication == AC_AUTH_BASIC)
+        auth = BASIC_AUTH;
+      else
+        auth = DIGEST_AUTH;
+      _responsePage->authentication(_apConfig.username.c_str(), _apConfig.password.c_str(), auth, _apConfig.realm.c_str(), _apConfig.fails);
+      AC_DBG_DUMB(",%s", auth == BASIC_AUTH ? "BASIC" : (auth == DIGEST_AUTH ? "DIGEST" : ""));
+    }
+    else
+      _responsePage->authentication(nullptr, nullptr);
   }
 
   return elm;
