@@ -511,23 +511,23 @@ PageElement* AutoConnectAux::_setupPage(const String& uri) {
       mother->_responsePage->chunked(chunk);
 
       // Register authentication method
-      AC_AUTH_t auth = AC_AUTH_NONE;
-      if (mother->_apConfig.scope == AC_AUTHSCOPE_AUX || mother->_apConfig.scope == AC_AUTHSCOPE_PORTAL)
-        auth = mother->_apConfig.authentication;
-      else if (mother->_apConfig.scope == AC_AUTHSCOPE_PARTIAL)
-        auth = _httpAuth;
-      if (auth != AC_AUTH_NONE) {
-        HTTPAuthMethod  httpAuth;
+      const char* authUser = nullptr;
+      const char* authPass = nullptr;
+      AC_AUTH_t       auth = _httpAuth;
+      HTTPAuthMethod  method = DIGEST_AUTH;
+      if (mother->_apConfig.authentication != AC_AUTH_NONE) {
+        authUser = mother->_apConfig.username.c_str();
+        authPass = mother->_apConfig.password.c_str();
+        if (mother->_apConfig.scope == AC_AUTHSCOPE_AUX || mother->_apConfig.scope == AC_AUTHSCOPE_PORTAL)
+          auth = mother->_apConfig.authentication;
         if (auth == AC_AUTH_BASIC)
-          httpAuth = BASIC_AUTH;
-        else
-          httpAuth = DIGEST_AUTH;
-        mother->_responsePage->authentication(mother->_apConfig.username.c_str(), mother->_apConfig.password.c_str(), httpAuth, mother->_apConfig.realm.c_str(), mother->_apConfig.fails);
-        AC_DBG_DUMB(",%s", httpAuth == BASIC_AUTH ? "BASIC" : (httpAuth == DIGEST_AUTH ? "DIGEST" : ""));
+          method = BASIC_AUTH;
       }
-      else
-        mother->_responsePage->authentication(nullptr, nullptr);
+      mother->_responsePage->authentication(authUser, authPass, method, mother->_apConfig.realm.c_str(), mother->_apConfig.fails);
+      if (auth != AC_AUTH_NONE) {
+        AC_DBG_DUMB(",%s", method == BASIC_AUTH ? "BASIC" : (method == DIGEST_AUTH ? "DIGEST" : ""));
       }
+    }
   }
   return elm;
 }

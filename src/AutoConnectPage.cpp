@@ -1159,7 +1159,7 @@ String AutoConnect::_token_LIST_SSID(PageArgument& args) {
     _scanCount = WiFi.scanNetworks(false, true);
     AC_DBG("%d network(s) found\n", (int)_scanCount);
   }
-  // Preapre SSID list content building buffer
+  // Prepare SSID list content building buffer
   size_t  bufSize = sizeof('\0') + 192 * (_scanCount > AUTOCONNECT_SSIDPAGEUNIT_LINES ? AUTOCONNECT_SSIDPAGEUNIT_LINES : _scanCount);
   bufSize += 88 * (_scanCount > AUTOCONNECT_SSIDPAGEUNIT_LINES ? (_scanCount > (AUTOCONNECT_SSIDPAGEUNIT_LINES * 2) ? 2 : 1) : 0);
   char* ssidList = (char*)malloc(bufSize);
@@ -1333,7 +1333,7 @@ String AutoConnect::_token_CURRENT_SSID(PageArgument& args) {
 
 /**
  *  This function dynamically build up the response pages that conform to
- *  the requested URI. A PageBuilder instance is stored in _rensponsePage
+ *  the requested URI. A PageBuilder instance is stored in _responsePage
  *  as the response page.
  *  @param  Requested URI.
  *  @retval true  A response page generated.
@@ -1498,7 +1498,7 @@ PageElement* AutoConnect::_setupPage(String uri) {
         break;
       }
     // Regiter authentication method
-    if (_apConfig.scope == AC_AUTHSCOPE_PORTAL) {
+    if (WiFi.status() == WL_CONNECTED && _apConfig.authentication != AC_AUTH_NONE && _apConfig.scope == AC_AUTHSCOPE_PORTAL) {
       HTTPAuthMethod  auth;
       if (_apConfig.authentication == AC_AUTH_BASIC)
         auth = BASIC_AUTH;
