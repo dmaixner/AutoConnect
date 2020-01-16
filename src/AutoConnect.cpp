@@ -150,7 +150,7 @@ bool AutoConnect::begin(const char* ssid, const char* passphrase, unsigned long 
     if (_update)
       _update->enable();
   }
- // Rushing into the portal.
+  // Rushing into the portal.
   else {
     // The captive portal is effective at the autoRise is valid only.
     if (_apConfig.autoRise) {
