@@ -511,22 +511,39 @@ PageElement* AutoConnectAux::_setupPage(const String& uri) {
       mother->_responsePage->chunked(chunk);
 
       // Register authentication method
+      bool  authCond = false;
       const char* authUser = nullptr;
       const char* authPass = nullptr;
-      AC_AUTH_t       auth = _httpAuth;
       HTTPAuthMethod  method = DIGEST_AUTH;
-      if (mother->_apConfig.authentication != AC_AUTH_NONE) {
-        authUser = mother->_apConfig.username.c_str();
-        authPass = mother->_apConfig.password.c_str();
-        if (mother->_apConfig.scope == AC_AUTHSCOPE_AUX || mother->_apConfig.scope == AC_AUTHSCOPE_PORTAL)
-          auth = mother->_apConfig.authentication;
-        if (auth == AC_AUTH_BASIC)
-          method = BASIC_AUTH;
+      if (WiFi.status() == WL_CONNECTED) {
+        // AC_AUTH_t       auth = _httpAuth;
+        if (mother->_apConfig.scope == AC_AUTHSCOPE_PARTIAL) {
+          if (_httpAuth != AC_AUTH_NONE) {
+            authCond = true;
+            if (_httpAuth == AC_AUTH_BASIC)
+              method = BASIC_AUTH;
+            // authUser = mother->_apConfig.username.c_str();
+            // authPass = mother->_apConfig.password.c_str();
+          }
+        }
+        else {
+          if (mother->_apConfig.authentication != AC_AUTH_NONE) {
+            authCond = true;
+            if (mother->_apConfig.authentication == AC_AUTH_BASIC)
+              method = BASIC_AUTH;
+            // authUser = mother->_apConfig.username.c_str();
+            // authPass = mother->_apConfig.password.c_str();
+          }
+        }
+        if (authCond) {
+          authUser = mother->_apConfig.username.c_str();
+          authPass = mother->_apConfig.password.c_str();
+        }
       }
       String  failsContent = String(FPSTR(AutoConnect::_ELM_HTML_HEAD)) + String(F("</head><body>")) + mother->_apConfig.fails + String(F("</body></html>"));
       mother->_responsePage->authentication(authUser, authPass, method, mother->_apConfig.realm.c_str(), failsContent);
-      if (auth != AC_AUTH_NONE) {
-        AC_DBG_DUMB(",%s", method == BASIC_AUTH ? "BASIC" : (method == DIGEST_AUTH ? "DIGEST" : ""));
+      if (authUser) {
+        AC_DBG_DUMB(",%s", method == BASIC_AUTH ? "BASIC" : "DIGEST");
       }
     }
   }
