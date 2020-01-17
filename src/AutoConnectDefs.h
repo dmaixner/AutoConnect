@@ -176,7 +176,7 @@
 
 // Default content to apply when authentication fails
 #ifndef AUTOCONNECT_AUTH_FAILCONTENT
-#define AUTOCONNECT_AUTH_FAILCONTENT  "Authenticaton failed"
+#define AUTOCONNECT_AUTH_FAILCONTENT  "Unauthorized access"
 #endif  // !AUTOCONNECT_AUTH_FAILCONTENT
 
 // ArduinoJson buffer size

@@ -523,7 +523,8 @@ PageElement* AutoConnectAux::_setupPage(const String& uri) {
         if (auth == AC_AUTH_BASIC)
           method = BASIC_AUTH;
       }
-      mother->_responsePage->authentication(authUser, authPass, method, mother->_apConfig.realm.c_str(), mother->_apConfig.fails);
+      String  failsContent = String(FPSTR(AutoConnect::_ELM_HTML_HEAD)) + String(F("</head><body>")) + mother->_apConfig.fails + String(F("</body></html>"));
+      mother->_responsePage->authentication(authUser, authPass, method, mother->_apConfig.realm.c_str(), failsContent);
       if (auth != AC_AUTH_NONE) {
         AC_DBG_DUMB(",%s", method == BASIC_AUTH ? "BASIC" : (method == DIGEST_AUTH ? "DIGEST" : ""));
       }

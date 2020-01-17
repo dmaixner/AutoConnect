@@ -1512,7 +1512,8 @@ PageElement* AutoConnect::_setupPage(String uri) {
         auth = BASIC_AUTH;
       else
         auth = DIGEST_AUTH;
-      _responsePage->authentication(_apConfig.username.c_str(), _apConfig.password.c_str(), auth, _apConfig.realm.c_str(), _apConfig.fails);
+      String  failsContent = String(FPSTR(AutoConnect::_ELM_HTML_HEAD)) + String(F("</head><body>")) + _apConfig.fails + String(F("</body></html>"));
+      _responsePage->authentication(_apConfig.username.c_str(), _apConfig.password.c_str(), auth, _apConfig.realm.c_str(), failsContent);
       AC_DBG_DUMB(",%s", auth == BASIC_AUTH ? "BASIC" : (auth == DIGEST_AUTH ? "DIGEST" : ""));
     }
     else
