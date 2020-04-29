@@ -527,7 +527,9 @@ const char  AutoConnect::_ELM_MENU_PRE[] PROGMEM = {
           "<a href=\"BOOT_URI\" class=\"lb-brand\">MENU_TITLE</a>"
           "<label class=\"lb-burger lb-burger-dblspin\" id=\"lb-burger\" for=\"lb-cb\"><span></span></label>"
         "</li>"
+        "MENU_HOME"
         "MENU_LIST"
+        "MENU_DEVINFO"
 };
 
 const char  AutoConnect::_ELM_MENU_AUX[] PROGMEM = {
@@ -535,8 +537,6 @@ const char  AutoConnect::_ELM_MENU_AUX[] PROGMEM = {
 };
 
 const char  AutoConnect::_ELM_MENU_POST[] PROGMEM = {
-        "MENU_HOME"
-        "MENU_DEVINFO"
       "</ul>"
     "</div>"
     "<div class=\"lap\" id=\"rdlg\"><a href=\"#reset\" class=\"overlap\"></a>"
@@ -957,6 +957,9 @@ String AutoConnect::_token_MENU_PRE(PageArgument& args) {
   currentMenu.replace(String(F("BOOT_URI")), _getBootUri());
   currentMenu.replace(String(F("MENU_TITLE")), _menuTitle);
   currentMenu.replace(String(F("{{CUR_SSID}}")), _token_ESTAB_SSID(args));
+  currentMenu.replace(String(F("MENU_HOME")), _attachMenuItem(AC_MENUITEM_HOME));
+  currentMenu.replace(String(F("HOME_URI")), _apConfig.homeUri);
+  currentMenu.replace(String(F("MENU_DEVINFO")), _attachMenuItem(AC_MENUITEM_DEVINFO));
   return currentMenu;
 }
 
@@ -970,9 +973,6 @@ String AutoConnect::_token_MENU_AUX(PageArgument& args) {
 String AutoConnect::_token_MENU_POST(PageArgument& args) {
   AC_UNUSED(args);
   String  postMenu = FPSTR(_ELM_MENU_POST);
-  postMenu.replace(String(F("MENU_HOME")), _attachMenuItem(AC_MENUITEM_HOME));
-  postMenu.replace(String(F("HOME_URI")), _apConfig.homeUri);
-  postMenu.replace(String(F("MENU_DEVINFO")), _attachMenuItem(AC_MENUITEM_DEVINFO));
   return postMenu;
 }
 
